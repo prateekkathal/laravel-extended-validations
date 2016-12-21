@@ -2,6 +2,10 @@
 
 namespace PrateekKathal\Validation;
 
+use Closure;
+use Illuminate\Support\Str;
+use BadMethodCallException;
+use InvalidArgumentException;
 use Illuminate\Validation\Validator as BaseValidator;
 use Symfony\Component\Translation\TranslatorInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -231,6 +235,101 @@ class Validator extends BaseValidator
       unset($parameters[0]);
 
       return str_replace(':values', implode(' / ', $parameters), $message);
+  }
+
+  /**
+   * Call a custom validator extension.
+   *
+   * @param  string  $rule
+   * @param  array   $parameters
+   *
+   * @return bool|null
+   */
+  protected function callExtension($rule, $parameters)
+  {
+      $callback = $this->extensions[$rule];
+
+      if ($callback instanceof Closure) {
+          return call_user_func_array($callback, $parameters);
+      } elseif (is_string($callback)) {
+          return $this->callClassBasedExtension($callback, $parameters);
+      }
+  }
+
+  /**
+   * Call a class based validator extension.
+   *
+   * @param  string  $callback
+   * @param  array   $parameters
+   *
+   * @return bool
+   */
+  protected function callClassBasedExtension($callback, $parameters)
+  {
+      if (Str::contains($callback, '@')) {
+          list($class, $method) = explode('@', $callback);
+      } else {
+          list($class, $method) = [$callback, 'validate'];
+      }
+
+      return call_user_func_array([$this->container->make($class), $method], $parameters);
+  }
+
+  /**
+   * Call a custom validator message replacer.
+   *
+   * @param  string  $message
+   * @param  string  $attribute
+   * @param  string  $rule
+   * @param  array   $parameters
+   *
+   * @return string|null
+   */
+  protected function callReplacer($message, $attribute, $rule, $parameters)
+  {
+      $callback = $this->replacers[$rule];
+
+      if ($callback instanceof Closure) {
+          return call_user_func_array($callback, func_get_args());
+      } elseif (is_string($callback)) {
+          return $this->callClassBasedReplacer($callback, $message, $attribute, $rule, $parameters);
+      }
+  }
+
+  /**
+   * Call a class based validator message replacer.
+   *
+   * @param  string  $callback
+   * @param  string  $message
+   * @param  string  $attribute
+   * @param  string  $rule
+   * @param  array   $parameters
+   *
+   * @return string
+   */
+  protected function callClassBasedReplacer($callback, $message, $attribute, $rule, $parameters)
+  {
+      list($class, $method) = explode('@', $callback);
+
+      return call_user_func_array([$this->container->make($class), $method], array_slice(func_get_args(), 1));
+  }
+
+  /**
+   * Require a certain number of parameters to be present.
+   *
+   * @param  int    $count
+   * @param  array  $parameters
+   * @param  string  $rule
+   *
+   * @return void
+   *
+   * @throws \InvalidArgumentException
+   */
+  protected function requireParameterCount($count, $parameters, $rule)
+  {
+      if (count($parameters) < $count) {
+          throw new InvalidArgumentException("Validation rule $rule requires at least $count parameters.");
+      }
   }
 
   /**
