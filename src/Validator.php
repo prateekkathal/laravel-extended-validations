@@ -65,6 +65,7 @@ class Validator extends BaseValidator
    * @param  string  $attribute
    * @param  mixed   $value
    * @param  array   $parameters
+   *
    * @return bool
    */
   protected function validateRelationExists($attribute, $value, $parameters)
@@ -90,6 +91,7 @@ class Validator extends BaseValidator
    * @param  string  $attribute
    * @param  mixed   $value
    * @param  array   $parameters
+   *
    * @return bool
    */
   protected function validateRelationNotExists($attribute, $value, $parameters)
@@ -130,6 +132,7 @@ class Validator extends BaseValidator
    * @param  string $attribute
    * @param  Model  $model
    * @param  string $relations
+   *
    * @return bool
    */
   protected function checkMultiRelationsExists($value, $attribute, $model, $relations)
@@ -155,7 +158,8 @@ class Validator extends BaseValidator
    * @param  int|string|array   $value
    * @param  string             $attribute
    * @param  Model              $model
-   * @param  string $relations
+   * @param  string             $relations
+   *
    * @return bool
    */
   protected function checkSingleRelationExists($value, $attribute, $model, $relations)
@@ -217,6 +221,7 @@ class Validator extends BaseValidator
    * @param  string  $attribute
    * @param  string  $rule
    * @param  array   $parameters
+   *
    * @return string
    */
   protected function replaceRelationNotExists($message, $attribute, $rule, $parameters)
@@ -233,6 +238,7 @@ class Validator extends BaseValidator
    *
    * @param  string  $method
    * @param  array   $parameters
+   *
    * @return mixed
    *
    * @throws \BadMethodCallException
