@@ -1,5 +1,5 @@
 {
-    "name": "prateekkathal/Laravel-extendedvalidations",
+    "name": "prateekkathal/laravel-extended-validations",
     "description": "A Laravel package for extending default Laravel Validations",
     "keywords": ["curl", "php", "laravel"],
     "type": "project",
